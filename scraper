@@ -1,8 +1,9 @@
 import requests
+from bs4 import BeautifulSoup
 
 
-url =  'http://www.zillow.com/montgomery-county-md/houses/'
-headers = {
+class Zillow():
+    headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'accept-encoding': 'gzip, deflate, br',
         'accept-language': 'en-US,en;q=0.9',
@@ -15,10 +16,27 @@ headers = {
         'upgrade-insecure-requests': '1',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
     }
+    def fetch(self,url,params):
+            response = requests.get(url, headers=self.headers, params=params)
+            print(response)
+            return response
 
-params = {
+    def parse(self,response):
+        content = BeautifulSoup(response)
+        print(content.prettify())
+
+    
+    def run(self):
+        url =  'http://www.zillow.com/montgomery-county-md/houses/'
+        params = {
                'searchQueryState': '{"pagination":{"currentPage": 1},"usersSearchTerm":"Montgomery County, MD","mapBounds":{"west":-77.46772000195313,"east":-76.94861599804688,"south":38.9220601465365,"north":39.3661918428691},"mapZoom":11,"regionSelection":[{"regionId":2975,"regionType":4}],"isMapVisible":false,"filterState":{"beds":{"min":4},"baths":{"min":2},"price":{"max":600000},"mp":{"max":1990},"ah":{"value":true},"sort":{"value":"globalrelevanceex"},"tow":{"value":false},"mf":{"value":false},"con":{"value":false},"apco":{"value":false},"land":{"value":false},"apa":{"value":false},"manu":{"value":false}},"isListVisible":true}' 
     }
-response = requests.get(url, headers=headers, params=params)
-print(response)
+
+        response = self.fetch(url, params)
+        self.parse(response.text)
+
+
+if __name__ == '__main__':
+    scraper = Zillow()
+    scraper.run()
 
