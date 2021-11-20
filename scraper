@@ -1,8 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
+import json
+import time
+import csv
+from csv import writer
 
 
 class Zillow():
+    results = []
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'accept-encoding': 'gzip, deflate, br',
@@ -16,24 +21,49 @@ class Zillow():
         'upgrade-insecure-requests': '1',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36'
     }
-    def fetch(self,url,params):
-            response = requests.get(url, headers=self.headers, params=params)
-            print(response)
-            return response
 
-    def parse(self,response):
-        content = BeautifulSoup(response)
-        print(content.prettify())
+    def fetch(self, url, params):
+        response = requests.get(url, headers=self.headers, params=params)
+        print(response.status_code)
+        return response
 
-    
+    def parse(self, response):
+        content = BeautifulSoup(response, 'lxml')
+        deck = content.find('ul',{'class': 'photo-cards photo-cards_wow photo-cards_short photo-cards_extra-attribution'})
+        for card in deck.contents:
+            script = card.find('script', {'type': 'application/ld+json' })
+            if script:
+                script_json = json.loads(script.contents[0])
+
+                self.results.append({
+                    'latitude': script_json['geo']['latitude'],
+                    'longitude': script_json['geo']['longitude'],
+                    'floorSize': script_json['floorSize']['value'],
+                    'url': script_json['url'],
+                    'price': card.find('div', {'class': 'list-card-price'}).text
+
+                })
+            
+    def to_csv(self):
+        with open('zillowdata.csv', 'w') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=self.results.keys())
+            writer.writeheader()
+
+            for row in self.results:
+                writer.writerow()
+                
+
+
     def run(self):
         url =  'http://www.zillow.com/montgomery-county-md/houses/'
-        params = {
-               'searchQueryState': '{"pagination":{"currentPage": 1},"usersSearchTerm":"Montgomery County, MD","mapBounds":{"west":-77.46772000195313,"east":-76.94861599804688,"south":38.9220601465365,"north":39.3661918428691},"mapZoom":11,"regionSelection":[{"regionId":2975,"regionType":4}],"isMapVisible":false,"filterState":{"beds":{"min":4},"baths":{"min":2},"price":{"max":600000},"mp":{"max":1990},"ah":{"value":true},"sort":{"value":"globalrelevanceex"},"tow":{"value":false},"mf":{"value":false},"con":{"value":false},"apco":{"value":false},"land":{"value":false},"apa":{"value":false},"manu":{"value":false}},"isListVisible":true}' 
-    }
 
-        response = self.fetch(url, params)
-        self.parse(response.text)
+        for page in range(1,4):
+                params = {
+               'searchQueryState': '{"pagination":{"currentPage": 1},"usersSearchTerm":"Montgomery County, MD","mapBounds":{"west":-77.46772000195313,"east":-76.94861599804688,"south":38.9220601465365,"north":39.3661918428691},"mapZoom":11,"regionSelection":[{"regionId":2975,"regionType":4}],"isMapVisible":false,"filterState":{"beds":{"min":4},"baths":{"min":2},"price":{"max":600000},"mp":{"max":1990},"ah":{"value":true},"sort":{"value":"globalrelevanceex"},"tow":{"value":false},"mf":{"value":false},"con":{"value":false},"apco":{"value":false},"land":{"value":false},"apa":{"value":false},"manu":{"value":false}},"isListVisible":true}' 
+            }
+                response = self.fetch(url, params)
+                self.parse(response.text)
+                time.sleep(2)
 
 
 if __name__ == '__main__':
