@@ -45,7 +45,7 @@ class Zillow():
                 })
             
     def to_csv(self):
-        with open('zillowdata.csv', 'w') as csv_file:
+        with open('zillowdata.csv', 'w+') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=self.results.keys())
             writer.writeheader()
 
