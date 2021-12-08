@@ -8,6 +8,7 @@ from csv import writer
 
 class Zillow():
     results = []
+    #### Replace from your selected zillow page. LOOK FOR THESE SPECIFIC LINES
     headers = {
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'accept-encoding': 'gzip, deflate, br',
@@ -53,10 +54,10 @@ class Zillow():
                 writer.writerow(row)
                 
 
-
+#### Replace from your selected zillow page. LOOK FOR THESE SPECIFIC LINES
     def run(self):
         url =  'http://www.zillow.com/montgomery-county-md/houses/'
-
+        ## Put in the page range below
         for page in range(1,4):
                 params = {
                'searchQueryState': '{"pagination":{"currentPage": 1},"usersSearchTerm":"Montgomery County, MD","mapBounds":{"west":-77.46772000195313,"east":-76.94861599804688,"south":38.9220601465365,"north":39.3661918428691},"mapZoom":11,"regionSelection":[{"regionId":2975,"regionType":4}],"isMapVisible":false,"filterState":{"beds":{"min":4},"baths":{"min":2},"price":{"max":600000},"mp":{"max":1990},"ah":{"value":true},"sort":{"value":"globalrelevanceex"},"tow":{"value":false},"mf":{"value":false},"con":{"value":false},"apco":{"value":false},"land":{"value":false},"apa":{"value":false},"manu":{"value":false}},"isListVisible":true}' 
