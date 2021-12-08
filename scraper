@@ -46,11 +46,11 @@ class Zillow():
             
     def to_csv(self):
         with open('zillowdata.csv', 'w+') as csv_file:
-            writer = csv.DictWriter(csv_file, fieldnames=self.results.keys())
+            writer = csv.DictWriter(csv_file, fieldnames=self.results[0].keys())
             writer.writeheader()
 
             for row in self.results:
-                writer.writerow()
+                writer.writerow(row)
                 
 
 
@@ -63,7 +63,7 @@ class Zillow():
             }
                 response = self.fetch(url, params)
                 self.parse(response.text)
-                time.sleep(2)
+                self.to_csv()
 
 
 if __name__ == '__main__':
